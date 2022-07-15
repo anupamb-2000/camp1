@@ -44,6 +44,12 @@ INSERT INTO Employee VALUES
 (7900,'JAMES','CLERK',7698,'12/03/1981',950,NULL,30),
 (7934,'MILLER','CLERK',7782,'01/23/1982',1300,NULL,10)
 
+--Preview Tables
+SELECT * FROM Employee
+
+SELECT * FROM Department
+
+
 --Report needed: Names of employees who are manager
 SELECT ename FROM Employee 
 WHERE job = 'MANAGER'
@@ -64,3 +70,32 @@ ORDER BY Department.dname ASC, Employee.ename DESC
 --Find out employee name and departmentname of employees who either works in a Toy or Shoe department
 
 --Report needed: Name concatenated with department, separated by comma and space and name column Employee and department
+
+--Write a query to display name, job, department number and department name for all employees who work in DALLAS
+SELECT Employee.ename, Employee.job, Department.deptno, Department.dname
+FROM Employee
+JOIN Department ON Employee.deptno = Department.deptno
+WHERE Department.loc = 'DALLAS'
+
+--List the names of all employees along with name of managers
+SELECT e2.ename 'Employee', e1.ename 'Manager'
+FROM Employee e1, Employee e2
+WHERE e1.empno = e2.mgr
+
+--Display all employee name, manager number and manager name of all employees including King who have no manager
+SELECT ename
+FROM Employee
+WHERE mgr IS NULL
+
+--Display employee name, department number and all employees that work in same
+--department as a given employee (‘Mathew’). Give each column an appropriate label
+SELECT Employee.ename, Employee.job, Department.deptno, Department.dname
+FROM Employee
+JOIN Department ON Employee.deptno = Department.deptno
+WHERE Employee.deptno IN ( SELECT deptno FROM Employee WHERE ename = 'Mathew')
+
+--Create a unique listing of all jobs that are in department 30. Include location of department 30 in the output
+SELECT DISTINCT Employee.job, Department.deptno
+FROM Employee
+JOIN Department ON Employee.deptno = Department.deptno
+WHERE Employee.deptno = 30
