@@ -55,7 +55,7 @@ INSERT INTO OrderDetails VALUES
 ('2019/07/13', 600, 5, 3),
 ('2020/07/15', 520, 1, 1),
 ('2020/12/22', 1200, 4, 4),
-('2019/10/02', 420, 3, 1),
+('2019/10/02', 720, 3, 1),
 ('2020/11/03', 3000, 2, 3),
 ('2020/12/22', 1100, 4, 4),
 ('2019/12/29', 5500, 2, 1)
@@ -82,4 +82,66 @@ SELECT * FROM OrderDetails
 
 SELECT * FROM ProductDetails
 
---Total number of orders placed in each yearSELECT YEAR(OrderDate) 'Year', COUNT(OrderId) 'No. of orders placed'FROM OrderDetailsGROUP BY YEAR(OrderDate)--Total number of orders placed in each year by JayeshSELECT YEAR(OrderDate) 'Year', COUNT(OrderId) 'No. of orders placed'FROM OrderDetailsGROUP BY CustomerId, YEAR(OrderDate)HAVING  CustomerId IN (	SELECT CustomerId	FROM CustomerDetails 	WHERE CustomerName = 'Jayesh')--Products which are ordered in the same year of its manufacturing yearSELECT * FROM OrderDetailsINNER JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderIdWHERE YEAR(OrderDetails.OrderDate) = YEAR(ProductDetails.Manufacture_Date)--Products which is ordered in the same year of its manufacturing year where the Manufacturer is ‘Samsung’SELECT * FROM OrderDetailsINNER JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderIdWHERE YEAR(OrderDetails.OrderDate) = YEAR(ProductDetails.Manufacture_Date) 	AND ProductDetails.Manufr_id = (SELECT Manufr_id FROM ManufacturerDetails WHERE Manufr_name = 'Samsung')--Total number of products ordered every yearSELECT YEAR(OrderDate) 'Year', SUM(OrderQuantity) 'No. of products ordered'FROM OrderDetailsGROUP BY YEAR(OrderDate)--Display the total number of products ordered every year made by sonySELECT YEAR(OrderDetails.OrderDate), SUM(OrderQuantity)FROM OrderDetailsJOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderIdJOIN ManufacturerDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_idGROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)HAVING ManufacturerDetails.Manufr_name = 'Sony'--All customers who are ordering mobile phone by samsungSELECT * FROM CustomerDetailsJOIN OrderDetails ON OrderDetails.CustomerId = CustomerDetails.CustomerIdJOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderIdJOIN ManufacturerDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_idWHERE ManufacturerDetails.Manufr_name = 'Samsung'--Total number of orders got by each Manufacturer every yearSELECT ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate) 'Year', COUNT(OrderDetails.OrderId) 'No. of Orders'FROM ManufacturerDetailsJOIN ProductDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_idJOIN OrderDetails ON OrderDetails.OrderId = ProductDetails.OrderIdGROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)--All Manufacturers whose products were sold more than 1500 Rs every yearSELECT ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate) 'Year', COUNT(OrderDetails.OrderId) 'No. of Orders', SUM(OrderDetails.OrderPrice) 'Price' FROM ManufacturerDetailsJOIN ProductDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_idJOIN OrderDetails ON OrderDetails.OrderId = ProductDetails.OrderIdGROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)HAVING SUM(OrderDetails.OrderPrice) > 1500
+--Total number of orders placed in each year
+SELECT YEAR(OrderDate) 'Year', COUNT(OrderId) 'No. of orders placed'
+FROM OrderDetails
+GROUP BY YEAR(OrderDate)
+
+--Total number of orders placed in each year by Jayesh
+SELECT YEAR(OrderDate) 'Year', COUNT(OrderId) 'No. of orders placed'
+FROM OrderDetails
+GROUP BY CustomerId, YEAR(OrderDate)
+HAVING  CustomerId IN (
+	SELECT CustomerId
+	FROM CustomerDetails 
+	WHERE CustomerName = 'Jayesh'
+)
+
+--Products which are ordered in the same year of its manufacturing year
+SELECT * 
+FROM OrderDetails
+INNER JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+WHERE YEAR(OrderDetails.OrderDate) = YEAR(ProductDetails.Manufacture_Date)
+
+--Products which is ordered in the same year of its manufacturing year where the Manufacturer is ‘Samsung’
+SELECT * 
+FROM OrderDetails
+INNER JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+WHERE YEAR(OrderDetails.OrderDate) = YEAR(ProductDetails.Manufacture_Date) 
+	AND ProductDetails.Manufr_id = (SELECT Manufr_id FROM ManufacturerDetails WHERE Manufr_name = 'Samsung')
+
+--Total number of products ordered every year
+SELECT YEAR(OrderDate) 'Year', SUM(OrderQuantity) 'No. of products ordered'
+FROM OrderDetails
+GROUP BY YEAR(OrderDate)
+
+--Display the total number of products ordered every year made by sony
+SELECT YEAR(OrderDetails.OrderDate), SUM(OrderQuantity)
+FROM OrderDetails
+JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+JOIN ManufacturerDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_id
+GROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)
+HAVING ManufacturerDetails.Manufr_name = 'Sony'
+
+--All customers who are ordering mobile phone by samsung
+SELECT * 
+FROM CustomerDetails
+JOIN OrderDetails ON OrderDetails.CustomerId = CustomerDetails.CustomerId
+JOIN ProductDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+JOIN ManufacturerDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_id
+WHERE ManufacturerDetails.Manufr_name = 'Samsung'
+
+--Total number of orders got by each Manufacturer every year
+SELECT ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate) 'Year', COUNT(OrderDetails.OrderId) 'No. of Orders'
+FROM ManufacturerDetails
+JOIN ProductDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_id
+JOIN OrderDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+GROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)
+
+--All Manufacturers whose products were sold more than 1500 Rs every year
+SELECT ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate) 'Year', COUNT(OrderDetails.OrderId) 'No. of Orders', SUM(OrderDetails.OrderPrice) 'Price' 
+FROM ManufacturerDetails
+JOIN ProductDetails ON ProductDetails.Manufr_id = ManufacturerDetails.Manufr_id
+JOIN OrderDetails ON OrderDetails.OrderId = ProductDetails.OrderId
+GROUP BY ManufacturerDetails.Manufr_name, YEAR(OrderDetails.OrderDate)
+HAVING SUM(OrderDetails.OrderPrice) > 1500
